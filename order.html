@@ -194,7 +194,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="cart-divider"></div>
-    <div class="cart-total-row">
+    <div class="cart-total-row" style="margin-bottom:10px">
+      <span class="cart-total-label">Produkty</span>
+      <span style="font-size:.9rem;font-weight:600;color:var(--fg)" id="subtotalVal">0 zł</span>
+    </div>
+    <div class="cart-total-row" style="margin-bottom:18px">
+      <span class="cart-total-label">Dostawa (Paczkomat InPost)</span>
+      <span style="font-size:.9rem;font-weight:600;color:#444" id="deliveryVal">— zł</span>
+    </div>
+    <div class="cart-divider"></div>
+    <div class="cart-total-row" style="margin-top:14px">
       <span class="cart-total-label">Razem</span>
       <span class="cart-total-val"><span id="totalVal">0</span><span>zł</span></span>
     </div>
@@ -356,18 +365,25 @@ function onLeave(){ cursor.classList.remove('big'); }
 bindCursor();
 
 // ── CART ──
-const PRICE = 99;
-const cart = {}; // { flavor: qty }
+const PRICE    = 99;
+const DELIVERY = 12;
 
 function cartTotal(){
   return Object.values(cart).reduce((s,q)=>s+q*PRICE,0);
 }
 
 function renderCart(){
-  const container = document.getElementById('cartItems');
-  const empty = document.getElementById('cartEmpty');
-  const keys = Object.keys(cart).filter(k=>cart[k]>0);
-  document.getElementById('totalVal').textContent = cartTotal();
+  const container  = document.getElementById('cartItems');
+  const empty      = document.getElementById('cartEmpty');
+  const keys       = Object.keys(cart).filter(k=>cart[k]>0);
+  const subtotal   = cartTotal();
+  const hasItems   = keys.length > 0;
+  const total      = hasItems ? subtotal + DELIVERY : 0;
+
+  document.getElementById('subtotalVal').textContent = subtotal + ' zł';
+  document.getElementById('deliveryVal').textContent = hasItems ? DELIVERY + ' zł' : '— zł';
+  document.getElementById('deliveryVal').style.color = hasItems ? '#666' : '#333';
+  document.getElementById('totalVal').textContent    = total;
 
   if(keys.length === 0){
     empty.style.display = 'block';
@@ -548,9 +564,11 @@ document.getElementById('btnConfirm').addEventListener('click', async()=>{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        product:'MerryMi Panda X 40K 99zł',
+        product:'MerryMi Panda X 40K',
         flavors,
-        total: cartTotal()+' zł',
+        subtotal: cartTotal()+' zł',
+        delivery: DELIVERY+' zł',
+        total: (cartTotal()+DELIVERY)+' zł',
         locker: inputLocker.value.trim().toUpperCase(),
         email:  inputEmail.value.trim(),
         telegram: document.getElementById('inputTg').value.trim()||'—',
