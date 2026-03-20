@@ -298,7 +298,20 @@ document.querySelectorAll('a,button').forEach(el=>{
   el.addEventListener('mouseleave',()=>cursor.classList.remove('big'));
 });
 
-// ── NAV SCROLL ──
+// ── SMOOTH SCROLL ──
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const id = link.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    const navH = document.getElementById('nav').offsetHeight;
+    const top = target.getBoundingClientRect().top + window.scrollY - navH - 20;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+
+
 window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 },{passive:true});
