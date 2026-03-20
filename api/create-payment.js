@@ -19,8 +19,7 @@ module.exports = async function handler(req, res) {
         pay_currency:      'ltc',
         order_id:          orderId,
         order_description: 'MerryMi Panda X 40K — 1raz',
-        ipn_callback_url:  `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/webhook`,
-        customer_email:    customerEmail || undefined
+        ipn_callback_url:  `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/webhook`
       })
     });
 
