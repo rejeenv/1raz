@@ -62,11 +62,13 @@ nav.scrolled{background:rgba(10,10,10,.9);backdrop-filter:blur(14px);border-bott
 
 .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
 
-/* 3D viewer — Three.js */
+/* 3D viewer — sprite hologram */
 .card-area{display:flex;justify-content:center;align-items:center}
-.threejs-wrap{position:relative;width:340px;height:460px;cursor:none}
-.threejs-wrap canvas{display:block;width:340px !important;height:460px !important;border-radius:0}
-.vape-glow{position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);width:200px;height:60px;background:radial-gradient(ellipse,rgba(0,160,220,.2) 0%,transparent 70%);filter:blur(18px);pointer-events:none;opacity:.6;transition:opacity .4s}
+.vape-stage{position:relative;width:320px;height:460px;cursor:none;display:flex;align-items:center;justify-content:center}
+.vape-sprite-wrap{position:relative;transform-style:preserve-3d;will-change:transform;transition:transform .08s linear}
+.vape-sprite{width:260px;height:auto;display:block;filter:drop-shadow(0 40px 60px rgba(0,160,220,.35)) drop-shadow(0 0 30px rgba(0,160,220,.15));pointer-events:none;user-select:none;-webkit-user-drag:none}
+.vape-shadow{position:absolute;bottom:-36px;left:50%;transform:translateX(-50%);width:160px;height:28px;background:radial-gradient(ellipse,rgba(0,160,220,.22) 0%,transparent 70%);filter:blur(10px);pointer-events:none;transition:opacity .3s}
+.vape-glow-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;height:360px;background:radial-gradient(ellipse,rgba(0,140,200,.05) 0%,transparent 65%);pointer-events:none}
 .card-link-overlay{position:absolute;inset:0;z-index:10;cursor:none;text-decoration:none}
 
 /* product text */
@@ -186,11 +188,14 @@ footer span{font-size:.58rem;font-weight:500;letter-spacing:.15em;text-transform
 
   <div class="product-grid">
 
-    <!-- Three.js 3D vape viewer -->
+    <!-- sprite 3D hologram -->
     <div class="card-area" id="cardArea">
-      <div class="threejs-wrap" id="threeWrap">
-        <canvas id="vapeCanvas"></canvas>
-        <div class="vape-glow" id="vapeGlow"></div>
+      <div class="vape-stage" id="vapeStage">
+        <div class="vape-glow-bg"></div>
+        <div class="vape-sprite-wrap" id="vapeSpriteWrap">
+          <img class="vape-sprite" id="vapeSprite" src="./buszek.png" alt="Nazwa Produktu" draggable="false">
+        </div>
+        <div class="vape-shadow" id="vapeShadow"></div>
         <a href="order.html" class="card-link-overlay" aria-label="Przejdź do zamówienia"></a>
       </div>
     </div>
@@ -278,7 +283,6 @@ footer span{font-size:.58rem;font-weight:500;letter-spacing:.15em;text-transform
   <span>PL · PLN</span>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ── CURSOR ──
 const cursor = document.getElementById('cursor');
@@ -297,79 +301,69 @@ window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 },{passive:true});
 
-// ── THREE.JS VAPE 3D ──
+// ── VAPE SPRITE 3D HOLOGRAM ──
 (function(){
-  const W=340, H=460;
-  const canvas=document.getElementById('vapeCanvas');
-  canvas.width=W*window.devicePixelRatio||W;
-  canvas.height=H*window.devicePixelRatio||H;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const stage  = document.getElementById('vapeStage');
+  const wrap   = document.getElementById('vapeSpriteWrap');
+  const shadow = document.getElementById('vapeShadow');
+  const sprite = document.getElementById('vapeSprite');
 
-  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-  renderer.setSize(W,H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setClearColor(0x000000,0);
-  renderer.shadowMap.enabled=false;
+  let mX=0, mY=0, tX=0, tY=0, t=0;
+  let isHover = false;
 
-  const scene3=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(38,W/H,0.1,100);
-  camera.position.set(0,0,3.2);
-
-  // vape shape: tall rounded box
-  const geo=new THREE.BoxGeometry(1,1.72,0.22,1,1,1);
-
-  const loader=new THREE.TextureLoader();
-  loader.crossOrigin='anonymous';
-  const tex=loader.load('./buszek.png');
-  tex.flipY=false;
-
-  // materials: right,left,top,bottom,front,back
-  const side=new THREE.MeshStandardMaterial({color:0x0d3d58,roughness:.55,metalness:.55});
-  const top =new THREE.MeshStandardMaterial({color:0x0a6fa0,roughness:.4,metalness:.6});
-  const bot =new THREE.MeshStandardMaterial({color:0x061820,roughness:.8,metalness:.2});
-  const front=new THREE.MeshStandardMaterial({map:tex,roughness:.25,metalness:.15});
-  const back =new THREE.MeshStandardMaterial({color:0x061820,roughness:.7,metalness:.3});
-
-  const mesh=new THREE.Mesh(geo,[side,side,top,bot,front,back]);
-  scene3.add(mesh);
-
-  // lights
-  scene3.add(new THREE.AmbientLight(0xffffff,.55));
-  const key=new THREE.DirectionalLight(0xffffff,.9);
-  key.position.set(2,3,4); scene3.add(key);
-  const rim=new THREE.DirectionalLight(0x40b0ff,.5);
-  rim.position.set(-3,-1,1); scene3.add(rim);
-  const fill=new THREE.DirectionalLight(0xffffff,.25);
-  fill.position.set(0,-2,2); scene3.add(fill);
-
-  const wrap=document.getElementById('threeWrap');
-  const glow=document.getElementById('vapeGlow');
-  let mX=0,mY=0,tX=0,tY=0,t3=0;
-
-  wrap.addEventListener('mousemove',e=>{
-    const r=wrap.getBoundingClientRect();
-    mX=(e.clientX-r.left-r.width/2)/(r.width/2);
-    mY=(e.clientY-r.top-r.height/2)/(r.height/2);
+  stage.addEventListener('mousemove', e => {
+    const r = stage.getBoundingClientRect();
+    mX = (e.clientX - r.left - r.width/2)  / (r.width/2);
+    mY = (e.clientY - r.top  - r.height/2) / (r.height/2);
+    isHover = true;
     cursor.classList.add('big');
   });
-  wrap.addEventListener('mouseleave',()=>{ mX=0; mY=0; cursor.classList.remove('big'); });
-  wrap.addEventListener('mouseenter',()=>{ cursor.classList.add('big'); });
+  stage.addEventListener('mouseleave', () => {
+    mX=0; mY=0;
+    isHover = false;
+    cursor.classList.remove('big');
+  });
+  stage.addEventListener('mouseenter', () => cursor.classList.add('big'));
 
-  function animate3(){
-    requestAnimationFrame(animate3);
-    t3+=.008;
-    tX+=(mX-tX)*.07;
-    tY+=(mY-tY)*.07;
-    // idle bob + mouse rotation
-    mesh.rotation.y = tX*.7+Math.sin(t3)*.05;
-    mesh.rotation.x = -tY*.45+Math.sin(t3*1.2)*.025;
-    mesh.position.y = Math.sin(t3*.9)*.055;
-    // glow pulse
-    const g=.5+Math.abs(tX)*.3+Math.abs(tY)*.2+Math.sin(t3*2)*.1;
-    glow.style.opacity=Math.min(g,.95).toFixed(2);
-    renderer.render(scene3,camera);
+  function tick(){
+    requestAnimationFrame(tick);
+    t += .012;
+
+    // smooth lerp toward mouse
+    tX += (mX - tX) * .08;
+    tY += (mY - tY) * .08;
+
+    // idle float
+    const idleY = Math.sin(t) * 10;
+    const idleR = Math.sin(t * .7) * 1.5;
+
+    // mouse-driven tilt (perspective illusion)
+    const rotY  =  tX * 18;   // left/right tilt
+    const rotX  = -tY * 12;   // up/down tilt
+    const transX=  tX * 8;    // subtle position shift
+    const transY=  tY * 5 + idleY;
+
+    wrap.style.transform =
+      `translateX(${transX}px) translateY(${transY}px)` +
+      ` rotateY(${rotY}deg) rotateX(${rotX}deg)` +
+      ` rotate(${idleR}deg)`;
+
+    // shadow shrinks/moves with tilt
+    const shadowScale = 1 - Math.abs(tX) * .3;
+    const shadowOpacity = .6 + Math.abs(tX) * .2 - Math.abs(tY) * .1;
+    shadow.style.transform = `translateX(calc(-50% + ${tX*14}px)) scaleX(${shadowScale.toFixed(2)})`;
+    shadow.style.opacity = Math.max(.2, Math.min(.9, shadowOpacity)).toFixed(2);
+
+    // dynamic drop-shadow on sprite shifts with tilt
+    const sx = (-tX * 14).toFixed(1);
+    const sy = (10 - tY * 8).toFixed(1);
+    const glow1 = isHover ? 'rgba(0,180,240,.55)' : 'rgba(0,160,220,.3)';
+    const glow2 = isHover ? 'rgba(0,140,200,.25)' : 'rgba(0,140,200,.12)';
+    sprite.style.filter =
+      `drop-shadow(${sx}px ${sy}px 40px ${glow1})` +
+      ` drop-shadow(0 0 60px ${glow2})`;
   }
-  animate3();
+  tick();
 })();
 
 // ── FAQ ──
@@ -390,7 +384,7 @@ const io=new IntersectionObserver(entries=>{
     }
   });
 },{threshold:.1});
-[...document.querySelectorAll('#threeWrap,#productText > *,.faq-item,.flavor-row')].forEach(el=>{
+[...document.querySelectorAll('.vape-stage,#productText > *,.faq-item,.flavor-row')].forEach(el=>{
   el.style.opacity='0';el.style.transform='translateY(20px)';
   el.style.transition='opacity .75s ease,transform .75s ease';
   io.observe(el);
