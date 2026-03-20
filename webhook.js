@@ -50,5 +50,3 @@ ${statusEmoji} *PŁATNOŚĆ ${payment_status.toUpperCase()}*
     return res.status(500).json({ error: 'Internal error' });
   }
 }
-
-
