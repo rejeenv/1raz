@@ -180,9 +180,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <!-- LEFT — sticky preview + cart -->
   <div class="preview-side">
     <div class="preview-top">
-      <div class="preview-img"><img src="./buszek.png" alt="Nazwa Produktu" draggable="false"></div>
+      <div class="preview-img"><img src="./buszek.png" alt="MerryMi Panda X 40K" draggable="false"></div>
       <div class="preview-info">
-        <div class="preview-name">Nazwa Produktu</div>
+        <div class="preview-name">MerryMi Panda X 40K</div>
         <div class="preview-sub">40k puffs · 50mg/ml</div>
         <div class="preview-sub" style="color:var(--accent);margin-top:4px">99 zł / szt.</div>
       </div>
@@ -548,7 +548,7 @@ document.getElementById('btnConfirm').addEventListener('click', async()=>{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        product:'Nazwa Produktu 99zł',
+        product:'MerryMi Panda X 40K 99zł',
         flavors,
         total: cartTotal()+' zł',
         locker: inputLocker.value.trim().toUpperCase(),
