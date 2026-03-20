@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zamówienie — 1raz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root { --bg:#0a0a0a; --fg:#eeebe5; --accent:#9F9F9F; --border:#1a1a1a; --border2:#222; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--fg); font-family:'Inter',sans-serif; overflow-x:hidden; cursor:none; min-height:100vh; }
+body::after { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity:.025; pointer-events:none; z-index:999; }
+
+#cursor { position:fixed; width:22px; height:22px; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); will-change:left,top; transition:width .15s,height .15s; }
+#cursor::before { content:''; position:absolute; width:100%; height:1px; background:var(--accent); top:50%; left:0; transform:translateY(-50%); opacity:.8; }
+#cursor::after { content:''; position:absolute; width:1px; height:100%; background:var(--accent); left:50%; top:0; transform:translateX(-50%); opacity:.8; }
+#cursor.big { width:34px; height:34px; opacity:.5; }
+#cursor-dot { position:fixed; width:3px; height:3px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+
+nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:32px 60px; }
+.logo { font-weight:800; font-size:.95rem; letter-spacing:.08em; color:var(--fg); text-decoration:none; }
+.nav-back { font-size:.7rem; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:#444; text-decoration:none; display:flex; align-items:center; gap:10px; transition:color .2s; cursor:none; }
+.nav-back:hover { color:var(--fg); }
+.nav-back svg { width:14px; height:14px; stroke:currentColor; fill:none; }
+
+.page-wrap {
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  padding-top:100px;
+}
+
+/* LEFT — product preview */
+.preview-side {
+  background:#080808;
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:80px 60px;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+
+.preview-img {
+  width:280px;
+  height:340px;
+  overflow:hidden;
+  border:1px solid #1c1c1c;
+  margin-bottom:36px;
+  position:relative;
+}
+.preview-img img { width:100%; height:100%; object-fit:cover; object-position:center; display:block; filter:brightness(.95); }
+
+.preview-name { font-weight:800; font-size:1.4rem; letter-spacing:-.03em; color:var(--fg); margin-bottom:8px; }
+.preview-meta { display:flex; gap:20px; }
+.preview-tag { font-size:.62rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:#333; }
+.preview-price { font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
+
+/* RIGHT — form */
+.form-side {
+  padding:80px 60px 80px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.form-eyebrow { font-size:.6rem; font-weight:600; letter-spacing:.24em; text-transform:uppercase; color:#333; margin-bottom:20px; display:flex; align-items:center; gap:12px; }
+.form-eyebrow::before { content:''; display:block; width:20px; height:1px; background:#252525; }
+
+.form-title { font-weight:900; font-size:2.4rem; letter-spacing:-.04em; color:var(--fg); line-height:.95; margin-bottom:48px; }
+.form-title span { color:var(--accent); }
+
+/* FLAVOR PICKER */
+.flavor-label { font-size:.58rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:#333; margin-bottom:14px; }
+
+.flavors { display:flex; flex-direction:column; gap:10px; margin-bottom:40px; }
+
+.flavor-btn {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px 20px;
+  border:1px solid #1c1c1c;
+  background:none;
+  cursor:none;
+  transition:border-color .2s, background .2s;
+  text-align:left;
+  width:100%;
+}
+.flavor-btn:hover { border-color:#2e2e2e; background:#0d0d0d; }
+.flavor-btn.selected { border-color:var(--accent); background:#111; }
+
+.flavor-dot {
+  width:10px; height:10px;
+  border-radius:50%;
+  border:1px solid #333;
+  flex-shrink:0;
+  transition:background .2s, border-color .2s;
+}
+.flavor-btn.selected .flavor-dot { background:var(--accent); border-color:var(--accent); }
+
+.flavor-info { display:flex; flex-direction:column; gap:3px; }
+.flavor-name { font-size:.88rem; font-weight:600; color:var(--fg); letter-spacing:-.01em; }
+.flavor-desc { font-size:.65rem; color:#3a3a3a; letter-spacing:.04em; }
+
+/* DIVIDER */
+.form-divider { height:1px; background:var(--border); margin:0 0 32px; }
+
+/* NAME FIELD */
+.field-group { margin-bottom:32px; }
+.field-label { display:block; font-size:.58rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:#333; margin-bottom:10px; }
+.field-input {
+  width:100%; background:#0b0b0b; border:1px solid #1e1e1e;
+  padding:14px 18px; font-family:'Inter',sans-serif; font-size:.9rem;
+  color:var(--fg); outline:none; transition:border-color .2s;
+}
+.field-input:focus { border-color:#333; }
+.field-input::placeholder { color:#252525; }
+
+/* SUBMIT */
+.btn-submit {
+  width:100%; background:var(--accent); color:#0a0a0a; border:none;
+  padding:17px; font-weight:700; font-size:.78rem; letter-spacing:.1em;
+  text-transform:uppercase; cursor:none; transition:opacity .2s;
+  margin-bottom:16px;
+}
+.btn-submit:hover { opacity:.82; }
+.btn-submit:disabled { opacity:.3; cursor:not-allowed; }
+
+.form-note { font-size:.65rem; color:#2a2a2a; line-height:1.7; text-align:center; }
+
+/* SUCCESS */
+.success-wrap { display:none; text-align:center; padding:20px 0; }
+.success-wrap.show { display:block; }
+.success-icon { width:52px; height:52px; border:1px solid #2a2a2a; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+.success-icon svg { width:20px; height:20px; stroke:var(--accent); fill:none; stroke-width:1.5; }
+.success-wrap h3 { font-weight:800; font-size:1.3rem; letter-spacing:-.02em; color:var(--fg); margin-bottom:12px; }
+.success-wrap p { font-size:.84rem; color:#555; line-height:1.7; }
+.back-link { display:inline-block; margin-top:28px; font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:#333; text-decoration:none; transition:color .2s; border-bottom:1px solid #222; padding-bottom:2px; }
+.back-link:hover { color:var(--fg); border-color:#555; }
+
+@media(max-width:900px){
+  nav{padding:26px 28px;}
+  .page-wrap{grid-template-columns:1fr; padding-top:80px;}
+  .preview-side{position:static; height:auto; padding:60px 28px 40px; border-right:none; border-bottom:1px solid var(--border);}
+  .preview-img{width:200px; height:240px;}
+  .form-side{padding:48px 28px 80px;}
+}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<nav>
+  <a href="index.html" class="logo">1raz</a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 16 16"><line x1="12" y1="8" x2="2" y2="8"/><polyline points="6 4 2 8 6 12"/></svg>
+    Powrót
+  </a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- LEFT — preview -->
+  <div class="preview-side">
+    <div class="preview-img">
+      <img src="./buszek.png" alt="Nazwa Produktu" draggable="false">
+    </div>
+    <div class="preview-name">Nazwa Produktu</div>
+    <div class="preview-meta">
+      <span class="preview-tag">40k puffs · 50mg/ml</span>
+      <span class="preview-price">99 zł</span>
+    </div>
+  </div>
+
+  <!-- RIGHT — form -->
+  <div class="form-side">
+
+    <!-- FORM -->
+    <div id="formBlock">
+      <div class="form-eyebrow">Zamówienie</div>
+      <div class="form-title">Wybierz<br>smak<span>.</span></div>
+
+      <div class="flavor-label">Dostępne smaki</div>
+      <div class="flavors">
+        <button class="flavor-btn" data-flavor="Ice Peach Melon">
+          <div class="flavor-dot"></div>
+          <div class="flavor-info">
+            <span class="flavor-name">Ice Peach Melon</span>
+            <span class="flavor-desc">Brzoskwinia · melon · chłód</span>
+          </div>
+        </button>
+        <button class="flavor-btn" data-flavor="Fanta">
+          <div class="flavor-dot"></div>
+          <div class="flavor-info">
+            <span class="flavor-name">Fanta</span>
+            <span class="flavor-desc">Pomarańcza · orzeźwienie</span>
+          </div>
+        </button>
+        <button class="flavor-btn" data-flavor="Grape Ice">
+          <div class="flavor-dot"></div>
+          <div class="flavor-info">
+            <span class="flavor-name">Grape Ice</span>
+            <span class="flavor-desc">Winogrono · lodowaty finisz</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <div class="field-group">
+        <label class="field-label" for="inputName">Twoje imię</label>
+        <input class="field-input" id="inputName" type="text" placeholder="Jan" autocomplete="off" spellcheck="false">
+      </div>
+
+      <button class="btn-submit" id="btnSubmit" disabled>Wyślij zamówienie</button>
+      <p class="form-note">Potwierdzimy zamówienie przez Telegram. Szczegóły dostawy ustalimy po kontakcie.</p>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-wrap" id="successBlock">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Zamówienie przyjęte</h3>
+      <p>Otrzymaliśmy Twoje zamówienie.<br>Odezwiemy się przez Telegram w celu potwierdzenia i ustalenia szczegółów.</p>
+      <a href="index.html" class="back-link">← Wróć na stronę</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX+'px'; cursor.style.top = e.clientY+'px';
+  cursorDot.style.left = e.clientX+'px'; cursorDot.style.top = e.clientY+'px';
+});
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursor.classList.add('big'));
+  el.addEventListener('mouseleave',()=>cursor.classList.remove('big'));
+});
+
+// FLAVOR SELECTION
+let selectedFlavor = null;
+document.querySelectorAll('.flavor-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedFlavor = btn.dataset.flavor;
+    validate();
+  });
+});
+
+// NAME INPUT
+const inputName = document.getElementById('inputName');
+inputName.addEventListener('input', validate);
+
+function validate() {
+  const ok = selectedFlavor && inputName.value.trim().length > 0;
+  document.getElementById('btnSubmit').disabled = !ok;
+}
+
+// SUBMIT
+document.getElementById('btnSubmit').addEventListener('click', async () => {
+  const btn = document.getElementById('btnSubmit');
+  const name = inputName.value.trim();
+  btn.disabled = true;
+  btn.textContent = 'Wysyłanie...';
+
+  try {
+    await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        flavor: selectedFlavor,
+        product: 'Nazwa Produktu 99zł',
+        phone: '—',
+        locker: '—',
+        payInfo: '— (do ustalenia)'
+      })
+    });
+  } catch {}
+
+  document.getElementById('formBlock').style.display = 'none';
+  document.getElementById('successBlock').classList.add('show');
+});
+</script>
+</body>
+</html>
