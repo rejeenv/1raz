@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { flavors, total, locker, email, telegram, payMethod, pscCode, product } = req.body;
+  const { flavors, subtotal, delivery, total, locker, email, telegram, payMethod, pscCode, product } = req.body;
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   const CHAT_ID   = process.env.TELEGRAM_CHAT_ID;
   if (!BOT_TOKEN || !CHAT_ID) return res.status(500).json({ error: 'Config error' });
@@ -13,12 +13,16 @@ export default async function handler(req, res) {
   const message = `
 🛒 *NOWE ZAMÓWIENIE — 1raz*
 
-📦 Produkt: ${product || 'Nazwa Produktu'}
+📦 Produkt: ${product || 'MerryMi Panda X 40K'}
 🍬 Smaki: *${flavors || '—'}*
-💵 Wartość: *${total || '—'}*
 📬 Paczkomat: \`${locker || '—'}\`
 📧 Email: ${email || '—'}
 💬 Telegram: ${telegram || '—'}
+
+💵 Produkty: ${subtotal || '—'}
+🚚 Dostawa: ${delivery || '12 zł'}
+💰 *Razem: ${total || '—'}*
+
 ${payLine}
 
 ⏰ ${new Date().toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' })}
