@@ -367,6 +367,7 @@ bindCursor();
 // ── CART ──
 const PRICE    = 99;
 const DELIVERY = 12;
+const cart     = {};
 
 function cartTotal(){
   return Object.values(cart).reduce((s,q)=>s+q*PRICE,0);
