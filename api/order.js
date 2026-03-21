@@ -5,8 +5,8 @@ const PRICE      = 99;
 const COMMISSION = 0.10;
 
 async function kv(method, ...args) {
-  const url   = process.env.UPSTASH_URL;
-  const token = process.env.UPSTASH_TOKEN;
+  const url   = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
   const r = await fetch(`${url}/${[method, ...args].map(encodeURIComponent).join('/')}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
