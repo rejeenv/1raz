@@ -1,10 +1,18 @@
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { amount, orderId, customerEmail } = req.body;
   const API_KEY = process.env.NOWPAYMENTS_API_KEY;
-
   if (!API_KEY) return res.status(500).json({ error: 'Missing NOWPAYMENTS_API_KEY' });
+
+  // parse body manually if needed
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch {}
+  }
+
+  const { amount = 111, orderId = 'ORD-' + Date.now() } = body || {};
+
+  console.log('Creating payment:', { amount, orderId, apiKeyPrefix: API_KEY.substring(0, 8) });
 
   try {
     const r = await fetch('https://api.nowpayments.io/v1/payment', {
@@ -14,18 +22,19 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        price_amount:      amount,
+        price_amount:      Number(amount),
         price_currency:    'pln',
         pay_currency:      'ltc',
-        order_id:          orderId,
+        order_id:          String(orderId),
         order_description: 'MerryMi Panda X 40K — 1raz',
-        ipn_callback_url:  `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers['host']}/api/webhook`
+        ipn_callback_url:  `https://${req.headers['host']}/api/webhook`
       })
     });
 
     const data = await r.json();
+    console.log('NOWPayments response:', r.status, JSON.stringify(data));
+
     if (!r.ok) {
-      console.error('NOWPayments error:', JSON.stringify(data));
       return res.status(500).json({ error: 'NOWPayments error', detail: data });
     }
 
@@ -38,7 +47,7 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal error' });
+    console.error('Fetch error:', err.message);
+    return res.status(500).json({ error: 'Internal error', message: err.message });
   }
 };
