@@ -134,6 +134,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .pay-box{background:#0b0b0b;border:1px solid #1a1a1a;padding:18px 20px;margin-bottom:12px}
 .pay-box-label{font-size:.57rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#2e2e2e;margin-bottom:10px}
 .pay-address{font-size:.74rem;color:var(--accent);word-break:break-all;line-height:1.5;font-weight:500;cursor:pointer;transition:opacity .2s;font-family:'Inter',sans-serif}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 .pay-address:hover{opacity:.7}
 .pay-copy-hint{font-size:.6rem;color:#252525;margin-top:6px}
 .pay-note{font-size:.72rem;color:#303030;line-height:1.65}
@@ -300,7 +301,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div class="form-eyebrow">Krok 2 z 2</div>
 
           <div class="pay-title">Opłać<br>zamówienie<span style="color:var(--accent)">.</span></div>
-          <div class="pay-subtitle">Wybierz metodę płatności. Po opłaceniu kliknij „Potwierdzam".</div>
+          <div class="pay-subtitle" id="paySubtitle">Wybierz metodę płatności.</div>
 
           <div class="pay-methods">
             <button class="pay-method active" data-pay="ltc">
@@ -332,10 +333,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
                 <div class="pay-copy-hint">Kliknij adres aby skopiować</div>
               </div>
               <div style="display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:12px 16px;background:#0b0b0b;border:1px solid #1a1a1a">
-                <div id="ltcStatusDot" style="width:8px;height:8px;border-radius:50%;background:#333;flex-shrink:0;transition:background .3s"></div>
+                <div id="ltcStatusDot" style="width:8px;height:8px;border-radius:50%;background:#333;flex-shrink:0;transition:background .3s;animation:pulse-dot 2s ease-in-out infinite"></div>
                 <span style="font-size:.72rem;color:#444;letter-spacing:.06em" id="ltcStatusText">Oczekiwanie na płatność...</span>
               </div>
-              <div class="pay-note" style="margin-top:10px">Wyślij dokładnie <strong id="ltcAmountNote">—</strong> LTC na powyższy adres. Status odświeża się automatycznie.</div>
+              <div class="pay-note" style="margin-top:10px">Wyślij dokładnie <strong id="ltcAmountNote">—</strong> LTC na powyższy adres. Zamówienie zostanie przyjęte automatycznie po wykryciu wpłaty.</div>
             </div>
             <div id="ltcError" style="display:none;padding:14px 16px;background:#0b0b0b;border:1px solid #2a1010;font-size:.75rem;color:#8b3a3a;margin-bottom:12px">
               Błąd generowania płatności. Spróbuj ponownie lub wybierz PaySafeCard.
@@ -354,7 +355,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div class="pay-note">Wpisz kod PSC o wartości <strong id="pscAmount">0 zł</strong>.</div>
           </div>
 
-          <button class="btn-next" id="btnConfirm">Potwierdzam płatność</button>
+          <button class="btn-next" id="btnConfirm" style="display:none">Potwierdzam płatność</button>
           <button class="btn-back" id="btnBack">← Wróć do koszyka</button>
         </div>
 
@@ -532,12 +533,9 @@ async function goToSlide2(){
   document.getElementById('slidesTrack').style.transform = 'translateX(-50%)';
   document.getElementById('pip2').classList.add('done');
   const total = cartTotal() + DELIVERY;
-  document.getElementById('pscAmount').textContent = total+' zł';
-
-  // if LTC tab is active — create payment immediately
-  if(document.querySelector('.pay-method.active').dataset.pay === 'ltc'){
-    await createLtcPayment();
-  }
+  document.getElementById('pscAmount').textContent = total + ' zł';
+  updatePaySubtitle('ltc');
+  await createLtcPayment();
 }
 
 document.getElementById('btnBack').addEventListener('click', ()=>{
@@ -553,47 +551,48 @@ document.querySelectorAll('.pay-method').forEach(btn=>{
     document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel'+btn.dataset.pay.charAt(0).toUpperCase()+btn.dataset.pay.slice(1)).classList.add('active');
-    // create LTC payment on tab switch if not yet created
-    if(btn.dataset.pay === 'ltc' && !currentPaymentId){
-      await createLtcPayment();
-    }
+    updatePaySubtitle(btn.dataset.pay);
+    if(btn.dataset.pay === 'ltc' && !currentPaymentId) await createLtcPayment();
   });
 });
 
+function updatePaySubtitle(method){
+  const el = document.getElementById('paySubtitle');
+  if(method === 'ltc'){
+    el.textContent = 'Wyślij LTC na poniższy adres. Zamówienie zostanie przyjęte automatycznie po wykryciu wpłaty.';
+    document.getElementById('btnConfirm').style.display = 'none';
+  } else {
+    el.textContent = 'Wpisz kod PaySafeCard i kliknij „Potwierdzam".';
+    document.getElementById('btnConfirm').style.display = 'block';
+  }
+}
+
 // ── CREATE LTC PAYMENT ──
 async function createLtcPayment(){
-  document.getElementById('ltcLoading').style.display  = 'block';
-  document.getElementById('ltcDetails').style.display  = 'none';
-  document.getElementById('ltcError').style.display    = 'none';
+  document.getElementById('ltcLoading').style.display = 'block';
+  document.getElementById('ltcDetails').style.display = 'none';
+  document.getElementById('ltcError').style.display   = 'none';
 
   const total   = cartTotal() + DELIVERY;
   const orderId = 'ORD-' + Date.now();
 
   try {
-    const r = await fetch('/api/create-payment', {
+    const r    = await fetch('/api/create-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount:        total,
-        orderId:       orderId,
-        customerEmail: inputEmail.value.trim()
-      })
+      body: JSON.stringify({ amount: total, orderId })
     });
     const data = await r.json();
-    if(!r.ok || data.error) throw new Error(data.error || 'API error');
+    if(!r.ok || data.error) throw new Error(data.detail?.message || data.error || 'API error');
 
     currentPaymentId = data.paymentId;
 
-    // populate UI
-    const addrEl = document.getElementById('ltcAddr');
-    addrEl.textContent = data.payAddress;
+    document.getElementById('ltcAddr').textContent      = data.payAddress;
     document.getElementById('ltcPayAmount').textContent = data.payAmount + ' LTC';
-    document.getElementById('ltcAmountNote').textContent = data.payAmount;
-
+    document.getElementById('ltcAmountNote').textContent= data.payAmount;
     document.getElementById('ltcLoading').style.display = 'none';
     document.getElementById('ltcDetails').style.display = 'block';
 
-    // start polling status
     startPolling(data.paymentId);
 
   } catch(err) {
@@ -615,10 +614,10 @@ document.getElementById('ltcAddr').addEventListener('click', ()=>{
   });
 });
 
-// ── STATUS POLLING ──
+// ── STATUS POLLING — co 6 sekund ──
 function startPolling(paymentId){
   stopPolling();
-  pollInterval = setInterval(()=> checkStatus(paymentId), 8000);
+  pollInterval = setInterval(()=> checkStatus(paymentId), 6000);
 }
 
 function stopPolling(){
@@ -627,31 +626,35 @@ function stopPolling(){
 
 async function checkStatus(paymentId){
   try {
-    const r = await fetch(`/api/payment-status?id=${paymentId}`);
+    const r    = await fetch(`/api/payment-status?id=${paymentId}`);
     const data = await r.json();
     updateStatusUI(data.status);
     if(['finished','confirmed'].includes(data.status)){
       stopPolling();
+      await sendOrderToTelegram('ltc');
       onPaymentSuccess();
     }
+    if(['failed','expired'].includes(data.status)) stopPolling();
   } catch {}
 }
 
 function updateStatusUI(status){
   const dot  = document.getElementById('ltcStatusDot');
   const text = document.getElementById('ltcStatusText');
-  const map = {
-    waiting:          { color:'#333',    label:'Oczekiwanie na płatność...' },
-    confirming:       { color:'#c8a020', label:'Potwierdzanie transakcji...' },
-    confirmed:        { color:'#3a9a3a', label:'Płatność potwierdzona ✓' },
-    finished:         { color:'#3a9a3a', label:'Płatność zakończona ✓' },
-    partially_paid:   { color:'#c8a020', label:'Częściowa płatność — wyślij resztę' },
-    failed:           { color:'#9a3a3a', label:'Płatność nie powiodła się' },
-    expired:          { color:'#9a3a3a', label:'Płatność wygasła' },
+  const map  = {
+    waiting:        { color:'#333',    label:'Oczekiwanie na wpłatę...',         pulse:true  },
+    confirming:     { color:'#c8a020', label:'Wykryto wpłatę — potwierdzanie...', pulse:true  },
+    confirmed:      { color:'#3a9a3a', label:'Płatność potwierdzona ✓',           pulse:false },
+    finished:       { color:'#3a9a3a', label:'Płatność zakończona ✓',             pulse:false },
+    partially_paid: { color:'#c8a020', label:'Częściowa wpłata — wyślij resztę',  pulse:true  },
+    failed:         { color:'#9a3a3a', label:'Płatność nie powiodła się',          pulse:false },
+    expired:        { color:'#9a3a3a', label:'Czas płatności wygasł',             pulse:false },
   };
-  const s = map[status] || { color:'#555', label: status };
+  const s = map[status] || { color:'#555', label: status, pulse:false };
   dot.style.background = s.color;
+  dot.style.animation  = s.pulse ? 'pulse-dot 2s ease-in-out infinite' : 'none';
   text.textContent     = s.label;
+  text.style.color     = s.color === '#333' ? '#444' : s.color;
 }
 
 // ── PSC FORMAT + PASTE ──
@@ -663,40 +666,39 @@ document.getElementById('btnPaste').addEventListener('click',async()=>{
   try{ const t=await navigator.clipboard.readText(); document.getElementById('pscCode').value=t; }catch{}
 });
 
-// ── CONFIRM SUBMIT (PSC only — LTC auto-detects via webhook) ──
+// ── PSC CONFIRM ──
 document.getElementById('btnConfirm').addEventListener('click', async()=>{
-  const btn       = document.getElementById('btnConfirm');
-  const payMethod = document.querySelector('.pay-method.active').dataset.pay;
-
-  // LTC: button just sends order details to Telegram (payment verified separately by webhook)
+  const btn = document.getElementById('btnConfirm');
   btn.disabled = true;
   btn.textContent = 'Wysyłanie...';
+  await sendOrderToTelegram('psc');
+  onPaymentSuccess();
+});
 
-  const pscCode = payMethod === 'psc' ? document.getElementById('pscCode').value.trim() : null;
+// ── SEND ORDER TO TELEGRAM ──
+async function sendOrderToTelegram(payMethod){
+  const pscCode = payMethod === 'psc' ? document.getElementById('pscCode').value.trim() : '—';
   const flavors = Object.entries(cart).filter(([,q])=>q>0).map(([f,q])=>`${f} x${q}`).join(', ');
-
   try {
     await fetch('/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        product:  'MerryMi Panda X 40K',
+        product:      'MerryMi Panda X 40K',
         flavors,
-        subtotal:  cartTotal()+' zł',
-        delivery:  DELIVERY+' zł',
-        total:     (cartTotal()+DELIVERY)+' zł',
-        locker:    inputLocker.value.trim().toUpperCase(),
-        email:     inputEmail.value.trim(),
-        telegram:  document.getElementById('inputTg').value.trim()||'—',
+        subtotal:     cartTotal()+' zł',
+        delivery:     DELIVERY+' zł',
+        total:        (cartTotal()+DELIVERY)+' zł',
+        locker:       inputLocker.value.trim().toUpperCase(),
+        email:        inputEmail.value.trim(),
+        telegram:     document.getElementById('inputTg').value.trim()||'—',
         payMethod,
-        pscCode:   pscCode||'—',
+        pscCode,
         ltcPaymentId: currentPaymentId||'—'
       })
     });
   } catch {}
-
-  onPaymentSuccess();
-});
+}
 
 function onPaymentSuccess(){
   stopPolling();
