@@ -289,6 +289,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <input class="field-input" id="inputTg" type="text" placeholder="@twoj_nick" autocomplete="off" spellcheck="false">
           </div>
 
+          <div class="field-group">
+            <label class="field-label" for="inputAff">Kod rabatowy <span class="label-optional">opcjonalne</span></label>
+            <input class="field-input" id="inputAff" type="text" placeholder="np. BUBKA" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+          </div>
+
           <button class="btn-next" id="btnToPayment" disabled>
             Dalej — płatność
             <svg viewBox="0 0 16 16"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
@@ -686,6 +691,7 @@ async function sendOrderToTelegram(payMethod){
         locker:       inputLocker.value.trim().toUpperCase(),
         email:        inputEmail.value.trim(),
         telegram:     document.getElementById('inputTg').value.trim()||'—',
+        affCode:      document.getElementById('inputAff').value.trim().toUpperCase()||'',
         payMethod,
         pscCode,
         ltcPaymentId: currentPaymentId||'—'
