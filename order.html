@@ -345,14 +345,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
           <!-- PSC panel -->
           <div class="pay-panel" id="panelPsc">
-            <div class="field-group">
-              <label class="field-label">Kod PaySafeCard</label>
-              <div class="psc-row">
-                <input class="field-input" id="pscCode" type="text" placeholder="xxxx-xxxx-xxxx-xxxx" maxlength="19" autocomplete="off">
-                <button class="psc-paste" id="btnPaste">Wklej</button>
-              </div>
+            <div class="pay-box" style="text-align:center;padding:32px 24px">
+              <div class="pay-box-label" style="margin-bottom:16px">PaySafeCard</div>
+              <p style="font-size:.82rem;color:#444;line-height:1.8;margin-bottom:24px">Napisz do nas na Telegram — podaj kod PSC i numer zamówienia, a my ręcznie potwierdzimy płatność i wyślemy paczkę.</p>
+              <a href="https://t.me/Samurai88770" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:14px 32px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z"/></svg>
+                Napisz na Telegram
+              </a>
             </div>
-            <div class="pay-note">Wpisz kod PSC o wartości <strong id="pscAmount">0 zł</strong>.</div>
           </div>
 
           <button class="btn-next" id="btnConfirm" style="display:none">Potwierdzam płatność</button>
@@ -562,8 +562,8 @@ function updatePaySubtitle(method){
     el.textContent = 'Wyślij LTC na poniższy adres. Zamówienie zostanie przyjęte automatycznie po wykryciu wpłaty.';
     document.getElementById('btnConfirm').style.display = 'none';
   } else {
-    el.textContent = 'Wpisz kod PaySafeCard i kliknij „Potwierdzam".';
-    document.getElementById('btnConfirm').style.display = 'block';
+    el.textContent = 'Napisz na Telegram z kodem PSC — potwierdzimy ręcznie.';
+    document.getElementById('btnConfirm').style.display = 'none';
   }
 }
 
@@ -658,15 +658,9 @@ function updateStatusUI(status){
 }
 
 // ── PSC FORMAT + PASTE ──
-document.getElementById('pscCode').addEventListener('input',e=>{
-  let v=e.target.value.replace(/[^0-9]/g,'');
-  e.target.value=(v.match(/.{1,4}/g)||[]).join('-').substring(0,19);
-});
-document.getElementById('btnPaste').addEventListener('click',async()=>{
-  try{ const t=await navigator.clipboard.readText(); document.getElementById('pscCode').value=t; }catch{}
-});
+// (usunięto — PSC przekierowuje na Telegram)
 
-// ── PSC CONFIRM ──
+// ── PSC CONFIRM — ukryty, PSC używa Telegrama ──
 document.getElementById('btnConfirm').addEventListener('click', async()=>{
   const btn = document.getElementById('btnConfirm');
   btn.disabled = true;
