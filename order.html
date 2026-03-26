@@ -140,11 +140,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .pay-note{font-size:.72rem;color:#303030;line-height:1.65}
 .pay-note strong{color:#555}
 
-.psc-row{display:flex;gap:0}
-.psc-row .field-input{border-right:none}
-.psc-paste{flex-shrink:0;background:#111;border:1px solid #1e1e1e;color:#444;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:0 16px;cursor:none;transition:color .2s,border-color .2s;white-space:nowrap}
-.psc-paste:hover{color:var(--fg);border-color:#333}
-
 /* SUCCESS */
 .success-wrap{display:none;text-align:center;padding:20px 0}
 .success-wrap.show{display:block}
@@ -276,9 +271,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           </div>
 
           <div class="field-group">
-            <label class="field-label" for="inputEmail">
-              Adres e-mail
-            </label>
+            <label class="field-label" for="inputEmail">Adres e-mail</label>
             <input class="field-input" id="inputEmail" type="email" placeholder="jan@gmail.com" autocomplete="off" spellcheck="false">
             <div class="field-err" id="errEmail">Wpisz poprawny adres e-mail.</div>
             <p class="field-warning">⚠ Błędnie wpisany e-mail (np. literówka) uniemożliwia odbiór paczki z paczkomatu i ponowną wysyłkę. Sprawdź przed przejściem dalej.</p>
@@ -321,11 +314,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
           <!-- LTC panel -->
           <div class="pay-panel active" id="panelLtc">
-            <!-- loading state -->
             <div id="ltcLoading" class="pay-box" style="text-align:center;padding:28px">
               <div class="pay-box-label" style="margin-bottom:0">Generowanie adresu płatności...</div>
             </div>
-            <!-- payment details (hidden until loaded) -->
             <div id="ltcDetails" style="display:none">
               <div class="pay-box">
                 <div class="pay-box-label">Kwota do zapłaty</div>
@@ -360,7 +351,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             </div>
           </div>
 
-          <button class="btn-next" id="btnConfirm" style="display:none">Potwierdzam płatność</button>
           <button class="btn-back" id="btnBack">← Wróć do koszyka</button>
         </div>
 
@@ -371,22 +361,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 <script>
 // ── CURSOR ──
-const cursor = document.getElementById('cursor');
+const cursor    = document.getElementById('cursor');
 const cursorDot = document.getElementById('cursor-dot');
 document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX+'px'; cursor.style.top = e.clientY+'px';
-  cursorDot.style.left = e.clientX+'px'; cursorDot.style.top = e.clientY+'px';
+  cursor.style.left    = e.clientX + 'px';
+  cursor.style.top     = e.clientY + 'px';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
 });
+function onEnter(){ cursor.classList.add('big'); }
+function onLeave(){ cursor.classList.remove('big'); }
 function bindCursor(){
-  document.querySelectorAll('a,button').forEach(el=>{
+  document.querySelectorAll('a,button').forEach(el => {
     el.removeEventListener('mouseenter', onEnter);
     el.removeEventListener('mouseleave', onLeave);
     el.addEventListener('mouseenter', onEnter);
     el.addEventListener('mouseleave', onLeave);
   });
 }
-function onEnter(){ cursor.classList.add('big'); }
-function onLeave(){ cursor.classList.remove('big'); }
 bindCursor();
 
 // ── CART ──
@@ -395,40 +387,40 @@ const DELIVERY = 12;
 const cart     = {};
 
 function cartTotal(){
-  return Object.values(cart).reduce((s,q)=>s+q*PRICE,0);
+  return Object.values(cart).reduce((s, q) => s + q * PRICE, 0);
 }
 
 function renderCart(){
-  const container  = document.getElementById('cartItems');
-  const empty      = document.getElementById('cartEmpty');
-  const keys       = Object.keys(cart).filter(k=>cart[k]>0);
-  const subtotal   = cartTotal();
-  const hasItems   = keys.length > 0;
-  const total      = hasItems ? subtotal + DELIVERY : 0;
+  const container = document.getElementById('cartItems');
+  const empty     = document.getElementById('cartEmpty');
+  const keys      = Object.keys(cart).filter(k => cart[k] > 0);
+  const subtotal  = cartTotal();
+  const hasItems  = keys.length > 0;
+  const total     = hasItems ? subtotal + DELIVERY : 0;
 
-  document.getElementById('subtotalVal').textContent = subtotal + ' zł';
-  document.getElementById('deliveryVal').textContent = hasItems ? DELIVERY + ' zł' : '— zł';
-  document.getElementById('deliveryVal').style.color = hasItems ? '#666' : '#333';
-  document.getElementById('totalVal').textContent    = total;
+  document.getElementById('subtotalVal').textContent      = subtotal + ' zł';
+  document.getElementById('deliveryVal').textContent      = hasItems ? DELIVERY + ' zł' : '— zł';
+  document.getElementById('deliveryVal').style.color      = hasItems ? '#666' : '#333';
+  document.getElementById('totalVal').textContent         = total;
 
   if(keys.length === 0){
     empty.style.display = 'block';
-    container.querySelectorAll('.cart-item').forEach(el=>el.remove());
+    container.querySelectorAll('.cart-item').forEach(el => el.remove());
     validateStep1();
     return;
   }
   empty.style.display = 'none';
 
-  // sync items
-  container.querySelectorAll('.cart-item').forEach(el=>{
-    if(!cart[el.dataset.flavor] || cart[el.dataset.flavor]===0) el.remove();
+  // usuń pozycje których nie ma już w koszyku
+  container.querySelectorAll('.cart-item').forEach(el => {
+    if(!cart[el.dataset.flavor] || cart[el.dataset.flavor] === 0) el.remove();
   });
 
-  keys.forEach(flavor=>{
+  keys.forEach(flavor => {
     let item = container.querySelector(`.cart-item[data-flavor="${CSS.escape(flavor)}"]`);
     if(!item){
       item = document.createElement('div');
-      item.className = 'cart-item';
+      item.className     = 'cart-item';
       item.dataset.flavor = flavor;
       item.innerHTML = `
         <span class="cart-item-name">${flavor}</span>
@@ -437,35 +429,37 @@ function renderCart(){
           <span class="qty-num">${cart[flavor]}</span>
           <button class="qty-btn" data-action="inc" data-flavor="${flavor}">+</button>
         </div>
-        <span class="cart-item-price">${cart[flavor]*PRICE}zł</span>
-        <button class="cart-remove" data-flavor="${flavor}"><svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke-width="1.5"/><line x1="9" y1="1" x2="1" y2="9" stroke-width="1.5"/></svg></button>
+        <span class="cart-item-price">${cart[flavor] * PRICE}zł</span>
+        <button class="cart-remove" data-flavor="${flavor}">
+          <svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke-width="1.5"/><line x1="9" y1="1" x2="1" y2="9" stroke-width="1.5"/></svg>
+        </button>
       `;
       container.appendChild(item);
     } else {
-      item.querySelector('.qty-num').textContent = cart[flavor];
-      item.querySelector('.cart-item-price').textContent = cart[flavor]*PRICE+'zł';
+      item.querySelector('.qty-num').textContent         = cart[flavor];
+      item.querySelector('.cart-item-price').textContent = cart[flavor] * PRICE + 'zł';
     }
   });
 
-  // update flavor btn state
-  document.querySelectorAll('.flavor-btn').forEach(btn=>{
+  // sync flavor btn stanu
+  document.querySelectorAll('.flavor-btn').forEach(btn => {
     const f = btn.dataset.flavor;
-    btn.classList.toggle('selected', cart[f]>0);
-    btn.querySelector('.flavor-add').textContent = cart[f]>0 ? `✓ ${cart[f]}` : '+ Dodaj';
+    btn.classList.toggle('selected', (cart[f] || 0) > 0);
+    btn.querySelector('.flavor-add').textContent = (cart[f] || 0) > 0 ? `✓ ${cart[f]}` : '+ Dodaj';
   });
 
   bindCursor();
   validateStep1();
 }
 
-// cart events (delegated)
-document.getElementById('cartItems').addEventListener('click', e=>{
+// zdarzenia koszyka (delegowane)
+document.getElementById('cartItems').addEventListener('click', e => {
   const qb = e.target.closest('.qty-btn');
   const rm = e.target.closest('.cart-remove');
   if(qb){
     const f = qb.dataset.flavor;
-    if(qb.dataset.action==='inc') cart[f]=(cart[f]||0)+1;
-    else { cart[f]=(cart[f]||1)-1; if(cart[f]<=0) delete cart[f]; }
+    if(qb.dataset.action === 'inc') cart[f] = (cart[f] || 0) + 1;
+    else { cart[f] = (cart[f] || 1) - 1; if(cart[f] <= 0) delete cart[f]; }
     renderCart();
   }
   if(rm){
@@ -474,32 +468,32 @@ document.getElementById('cartItems').addEventListener('click', e=>{
   }
 });
 
-// flavor add buttons
-document.querySelectorAll('.flavor-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const f = btn.dataset.flavor;
-    cart[f] = (cart[f]||0)+1;
+// przyciski dodawania smaków
+document.querySelectorAll('.flavor-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f  = btn.dataset.flavor;
+    cart[f]  = (cart[f] || 0) + 1;
     renderCart();
   });
 });
 
-// ── VALIDATION STEP 1 ──
-const inputLocker = document.getElementById('inputLocker');
-const inputEmail  = document.getElementById('inputEmail');
+// ── WALIDACJA KROKU 1 ──
+const inputLocker  = document.getElementById('inputLocker');
+const inputEmail   = document.getElementById('inputEmail');
 const btnToPayment = document.getElementById('btnToPayment');
 
 function validateStep1(){
-  const hasCart = Object.keys(cart).filter(k=>cart[k]>0).length > 0;
+  const hasCart   = Object.keys(cart).filter(k => cart[k] > 0).length > 0;
   const hasLocker = inputLocker.value.trim().length > 0;
-  const hasEmail = inputEmail.value.trim().length > 0;
+  const hasEmail  = inputEmail.value.trim().length > 0;
   btnToPayment.disabled = !(hasCart && hasLocker && hasEmail);
 }
 
 inputLocker.addEventListener('input', validateStep1);
 inputEmail.addEventListener('input', validateStep1);
 
-// ── INLINE ERRORS on "Dalej" click ──
-btnToPayment.addEventListener('click', ()=>{
+// ── BŁĘDY INLINE przy kliknięciu "Dalej" ──
+btnToPayment.addEventListener('click', () => {
   let ok = true;
 
   const locker = inputLocker.value.trim();
@@ -512,7 +506,7 @@ btnToPayment.addEventListener('click', ()=>{
     document.getElementById('errLocker').classList.remove('show');
   }
 
-  const email = inputEmail.value.trim();
+  const email   = inputEmail.value.trim();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if(!email || !emailOk){
     inputEmail.classList.add('err');
@@ -527,35 +521,41 @@ btnToPayment.addEventListener('click', ()=>{
   goToSlide2();
 });
 
-inputLocker.addEventListener('input',()=>{ inputLocker.classList.remove('err'); document.getElementById('errLocker').classList.remove('show'); });
-inputEmail.addEventListener('input', ()=>{ inputEmail.classList.remove('err'); document.getElementById('errEmail').classList.remove('show'); });
+inputLocker.addEventListener('input', () => {
+  inputLocker.classList.remove('err');
+  document.getElementById('errLocker').classList.remove('show');
+});
+inputEmail.addEventListener('input', () => {
+  inputEmail.classList.remove('err');
+  document.getElementById('errEmail').classList.remove('show');
+});
 
-// ── SLIDE NAVIGATION ──
+// ── NAWIGACJA MIĘDZY SLAJDAMI ──
 let currentPaymentId = null;
 let pollInterval     = null;
 
 async function goToSlide2(){
+  // FIX: usunięto odwołanie do nieistniejącego #pscAmount
   document.getElementById('slidesTrack').style.transform = 'translateX(-50%)';
   document.getElementById('pip2').classList.add('done');
-  const total = cartTotal() + DELIVERY;
-  document.getElementById('pscAmount').textContent = total + ' zł';
   updatePaySubtitle('ltc');
   await createLtcPayment();
 }
 
-document.getElementById('btnBack').addEventListener('click', ()=>{
+document.getElementById('btnBack').addEventListener('click', () => {
   document.getElementById('slidesTrack').style.transform = 'translateX(0)';
   document.getElementById('pip2').classList.remove('done');
   stopPolling();
 });
 
-// ── PAYMENT TABS ──
-document.querySelectorAll('.pay-method').forEach(btn=>{
-  btn.addEventListener('click', async ()=>{
-    document.querySelectorAll('.pay-method').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('active'));
+// ── ZAKŁADKI PŁATNOŚCI ──
+document.querySelectorAll('.pay-method').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('panel'+btn.dataset.pay.charAt(0).toUpperCase()+btn.dataset.pay.slice(1)).classList.add('active');
+    const panelId = 'panel' + btn.dataset.pay.charAt(0).toUpperCase() + btn.dataset.pay.slice(1);
+    document.getElementById(panelId).classList.add('active');
     updatePaySubtitle(btn.dataset.pay);
     if(btn.dataset.pay === 'ltc' && !currentPaymentId) await createLtcPayment();
   });
@@ -565,14 +565,12 @@ function updatePaySubtitle(method){
   const el = document.getElementById('paySubtitle');
   if(method === 'ltc'){
     el.textContent = 'Wyślij LTC na poniższy adres. Zamówienie zostanie przyjęte automatycznie po wykryciu wpłaty.';
-    document.getElementById('btnConfirm').style.display = 'none';
   } else {
     el.textContent = 'Napisz na Telegram z kodem PSC — potwierdzimy ręcznie.';
-    document.getElementById('btnConfirm').style.display = 'none';
   }
 }
 
-// ── CREATE LTC PAYMENT ──
+// ── TWORZENIE PŁATNOŚCI LTC ──
 async function createLtcPayment(){
   document.getElementById('ltcLoading').style.display = 'block';
   document.getElementById('ltcDetails').style.display = 'none';
@@ -592,37 +590,37 @@ async function createLtcPayment(){
 
     currentPaymentId = data.paymentId;
 
-    document.getElementById('ltcAddr').textContent      = data.payAddress;
-    document.getElementById('ltcPayAmount').textContent = data.payAmount + ' LTC';
-    document.getElementById('ltcAmountNote').textContent= data.payAmount;
-    document.getElementById('ltcLoading').style.display = 'none';
-    document.getElementById('ltcDetails').style.display = 'block';
+    document.getElementById('ltcAddr').textContent       = data.payAddress;
+    document.getElementById('ltcPayAmount').textContent  = data.payAmount + ' LTC';
+    document.getElementById('ltcAmountNote').textContent = data.payAmount;
+    document.getElementById('ltcLoading').style.display  = 'none';
+    document.getElementById('ltcDetails').style.display  = 'block';
 
     startPolling(data.paymentId);
 
   } catch(err) {
-    console.error(err);
+    console.error('createLtcPayment error:', err);
     document.getElementById('ltcLoading').style.display = 'none';
     document.getElementById('ltcError').style.display   = 'block';
   }
 }
 
-// ── COPY LTC ADDRESS ──
-document.getElementById('ltcAddr').addEventListener('click', ()=>{
+// ── KOPIOWANIE ADRESU LTC ──
+document.getElementById('ltcAddr').addEventListener('click', () => {
   const addr = document.getElementById('ltcAddr').textContent;
   if(!addr || addr === '—') return;
-  navigator.clipboard.writeText(addr).then(()=>{
-    const el = document.getElementById('ltcAddr');
+  navigator.clipboard.writeText(addr).then(() => {
+    const el   = document.getElementById('ltcAddr');
     const orig = el.textContent;
     el.textContent = 'Skopiowano ✓';
-    setTimeout(()=>{ el.textContent = orig; }, 2000);
+    setTimeout(() => { el.textContent = orig; }, 2000);
   });
 });
 
-// ── STATUS POLLING — co 6 sekund ──
+// ── POLLING STATUSU — co 6 sekund ──
 function startPolling(paymentId){
   stopPolling();
-  pollInterval = setInterval(()=> checkStatus(paymentId), 6000);
+  pollInterval = setInterval(() => checkStatus(paymentId), 6000);
 }
 
 function stopPolling(){
@@ -634,26 +632,29 @@ async function checkStatus(paymentId){
     const r    = await fetch(`/api/payment-status?id=${paymentId}`);
     const data = await r.json();
     updateStatusUI(data.status);
-    if(['finished','confirmed'].includes(data.status)){
+    if(['finished', 'confirmed'].includes(data.status)){
       stopPolling();
+      // FIX: sendOrderToTelegram wywołujemy BEZ próby czytania pscCode
       await sendOrderToTelegram('ltc');
       onPaymentSuccess();
     }
-    if(['failed','expired'].includes(data.status)) stopPolling();
-  } catch {}
+    if(['failed', 'expired'].includes(data.status)) stopPolling();
+  } catch(err) {
+    console.error('checkStatus error:', err);
+  }
 }
 
 function updateStatusUI(status){
   const dot  = document.getElementById('ltcStatusDot');
   const text = document.getElementById('ltcStatusText');
   const map  = {
-    waiting:        { color:'#333',    label:'Oczekiwanie na wpłatę...',         pulse:true  },
+    waiting:        { color:'#333',    label:'Oczekiwanie na wpłatę...',          pulse:true  },
     confirming:     { color:'#c8a020', label:'Wykryto wpłatę — potwierdzanie...', pulse:true  },
-    confirmed:      { color:'#3a9a3a', label:'Płatność potwierdzona ✓',           pulse:false },
-    finished:       { color:'#3a9a3a', label:'Płatność zakończona ✓',             pulse:false },
-    partially_paid: { color:'#c8a020', label:'Częściowa wpłata — wyślij resztę',  pulse:true  },
-    failed:         { color:'#9a3a3a', label:'Płatność nie powiodła się',          pulse:false },
-    expired:        { color:'#9a3a3a', label:'Czas płatności wygasł',             pulse:false },
+    confirmed:      { color:'#3a9a3a', label:'Płatność potwierdzona ✓',            pulse:false },
+    finished:       { color:'#3a9a3a', label:'Płatność zakończona ✓',              pulse:false },
+    partially_paid: { color:'#c8a020', label:'Częściowa wpłata — wyślij resztę',   pulse:true  },
+    failed:         { color:'#9a3a3a', label:'Płatność nie powiodła się',           pulse:false },
+    expired:        { color:'#9a3a3a', label:'Czas płatności wygasł',              pulse:false },
   };
   const s = map[status] || { color:'#555', label: status, pulse:false };
   dot.style.background = s.color;
@@ -662,50 +663,46 @@ function updateStatusUI(status){
   text.style.color     = s.color === '#333' ? '#444' : s.color;
 }
 
-// ── PSC FORMAT + PASTE ──
-// (usunięto — PSC przekierowuje na Telegram)
-
-// ── PSC CONFIRM — ukryty, PSC używa Telegrama ──
-document.getElementById('btnConfirm').addEventListener('click', async()=>{
-  const btn = document.getElementById('btnConfirm');
-  btn.disabled = true;
-  btn.textContent = 'Wysyłanie...';
-  await sendOrderToTelegram('psc');
-  onPaymentSuccess();
-});
-
-// ── SEND ORDER TO TELEGRAM ──
+// ── WYSYŁANIE ZAMÓWIENIA DO TELEGRAMA ──
 async function sendOrderToTelegram(payMethod){
-  const pscCode = payMethod === 'psc' ? document.getElementById('pscCode').value.trim() : '—';
-  const flavors = Object.entries(cart).filter(([,q])=>q>0).map(([f,q])=>`${f} x${q}`).join(', ');
+  const flavors = Object.entries(cart)
+    .filter(([, q]) => q > 0)
+    .map(([f, q]) => `${f} x${q}`)
+    .join(', ');
+
+  // FIX: pscCode tylko jeśli element istnieje — PSC używa Telegrama, więc zawsze '—'
+  const pscCodeEl = document.getElementById('pscCode');
+  const pscCode   = (payMethod === 'psc' && pscCodeEl) ? pscCodeEl.value.trim() : '—';
+
   try {
     await fetch('/api/order', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         product:      'MerryMi Panda X 40K',
         flavors,
-        subtotal:     cartTotal()+' zł',
-        delivery:     DELIVERY+' zł',
-        total:        (cartTotal()+DELIVERY)+' zł',
+        subtotal:     cartTotal() + ' zł',
+        delivery:     DELIVERY + ' zł',
+        total:        (cartTotal() + DELIVERY) + ' zł',
         locker:       inputLocker.value.trim().toUpperCase(),
         email:        inputEmail.value.trim(),
-        telegram:     document.getElementById('inputTg').value.trim()||'—',
-        affCode:      document.getElementById('inputAff').value.trim().toUpperCase()||'',
+        telegram:     document.getElementById('inputTg').value.trim() || '—',
+        affCode:      document.getElementById('inputAff').value.trim().toUpperCase() || '',
         payMethod,
         pscCode,
-        ltcPaymentId: currentPaymentId||'—'
+        ltcPaymentId: currentPaymentId || '—'
       })
     });
-  } catch {}
+  } catch(err) {
+    console.error('sendOrderToTelegram error:', err);
+  }
 }
 
 function onPaymentSuccess(){
   stopPolling();
-  document.getElementById('slidesWrap').style.display = 'none';
+  document.getElementById('slidesWrap').style.display   = 'none';
   document.getElementById('successBlock').classList.add('show');
 }
-
 </script>
 </body>
 </html>
