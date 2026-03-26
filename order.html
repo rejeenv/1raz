@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0a0a;--fg:#eeebe5;--accent:#C0C0C0;--border:#1a1a1a;--border2:#222;--err:#c0392b}
+:root{--bg:#0a0a0a;--fg:#eeebe5;--accent:#C0C0C0;--border:#1a1a1a;--border2:#222;--err:#c0392b;--warn:#7a5c1e;--warn-bg:#1a1200;--ok:#2d6a2d}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none;min-height:100vh}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:999}
@@ -79,19 +79,36 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .form-title{font-weight:900;font-size:2.2rem;letter-spacing:-.04em;color:var(--fg);line-height:.95;margin-bottom:40px}
 .form-title span{color:var(--accent)}
 
-/* FLAVORS */
-.flavor-section-label{font-size:.58rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#333;margin-bottom:12px}
-.flavors{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
-.flavor-btn{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border:1px solid #1c1c1c;background:none;cursor:none;transition:border-color .2s,background .2s;text-align:left;width:100%}
-.flavor-btn:hover{border-color:#2e2e2e;background:#0d0d0d}
-.flavor-left{display:flex;align-items:center;gap:14px}
-.flavor-dot{width:8px;height:8px;border-radius:50%;border:1px solid #333;flex-shrink:0;transition:background .2s,border-color .2s}
-.flavor-btn.selected .flavor-dot{background:var(--accent);border-color:var(--accent)}
-.flavor-info{display:flex;flex-direction:column;gap:2px}
-.flavor-name{font-size:.86rem;font-weight:600;color:var(--fg);letter-spacing:-.01em}
-.flavor-desc{font-size:.63rem;color:#3a3a3a;letter-spacing:.04em}
-.flavor-add{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#2a2a2a;border:1px solid #1a1a1a;padding:6px 12px;background:none;cursor:none;transition:border-color .2s,color .2s;white-space:nowrap;flex-shrink:0}
-.flavor-btn:hover .flavor-add,.flavor-btn.selected .flavor-add{border-color:var(--accent);color:var(--accent)}
+/* ── STOCK BANNER ── */
+.stock-banner{display:flex;flex-direction:column;gap:8px;padding:13px 16px;border:1px solid #1e1e1a;background:#0c0c0a;margin-bottom:24px}
+.stock-banner-top{display:flex;align-items:center;gap:8px}
+.stock-banner-icon{font-size:.8rem;line-height:1;flex-shrink:0;opacity:.6}
+.stock-banner-title{font-size:.64rem;font-weight:600;color:#4a4a3a;letter-spacing:.06em}
+.stock-banner-body{font-size:.63rem;color:#2e2e26;line-height:1.6;padding-left:20px}
+.stock-banner-link{display:inline-flex;align-items:center;gap:6px;margin-top:2px;padding:6px 12px;background:none;border:1px solid #1e1e1a;font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#3a3a30;text-decoration:none;transition:border-color .2s,color .2s;cursor:none;align-self:flex-start;margin-left:20px}
+.stock-banner-link:hover{border-color:#3a3a30;color:#666655}
+
+/* FLAVOR INPUT */
+.flavor-section-label{font-size:.58rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#333;margin-bottom:10px}
+.flavor-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.flavor-row{display:flex;align-items:center;gap:8px}
+.flavor-row-num{font-size:.6rem;color:#2e2e2e;width:16px;text-align:right;flex-shrink:0;font-weight:600}
+.flavor-row-input{flex:1;background:#0b0b0b;border:1px solid #1e1e1e;padding:11px 14px;font-family:'Inter',sans-serif;font-size:.84rem;color:var(--fg);outline:none;transition:border-color .2s}
+.flavor-row-input:focus{border-color:#3a3a3a}
+.flavor-row-input::placeholder{color:#1e1e1e}
+.flavor-row-qty{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.flavor-row-qty .qty-btn{width:24px;height:24px}
+.flavor-row-qty .qty-num{min-width:16px;font-size:.78rem}
+.flavor-row-del{width:24px;height:24px;border:none;background:none;color:#222;cursor:none;display:flex;align-items:center;justify-content:center;transition:color .2s;flex-shrink:0}
+.flavor-row-del:hover{color:#8b3030}
+.flavor-row-del svg{width:9px;height:9px;stroke:currentColor;fill:none}
+
+.btn-add-flavor{display:flex;align-items:center;gap:8px;background:none;border:1px dashed #1e1e1e;color:#333;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:10px 16px;cursor:none;transition:border-color .2s,color .2s;margin-bottom:8px}
+.btn-add-flavor:hover{border-color:#3a3a3a;color:#666}
+.btn-add-flavor svg{width:10px;height:10px;stroke:currentColor;fill:none}
+
+.flavor-confirm-box{padding:10px 14px;background:#080e08;border:1px solid #152015;font-size:.66rem;color:#2a5a2a;line-height:1.55;margin-bottom:20px}
+.flavor-confirm-box strong{color:#3a8a3a}
 
 /* FIELDS */
 .form-divider{height:1px;background:var(--border);margin:0 0 28px}
@@ -106,8 +123,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 .field-helper{display:inline-block;margin-top:8px;font-size:.62rem;font-weight:500;color:#2e2e2e;text-decoration:none;letter-spacing:.06em;border-bottom:1px solid #1e1e1e;padding-bottom:1px;transition:color .2s,border-color .2s;cursor:none}
 .field-helper:hover{color:var(--accent);border-color:var(--accent)}
-.field-warning{margin-top:9px;font-size:.62rem;font-weight:400;line-height:1.6;color:#363636;max-width:400px}
+.field-warning{margin-top:9px;padding:10px 12px;background:#100a0a;border-left:2px solid #3a1a1a;font-size:.63rem;font-weight:400;line-height:1.65;color:#5a3030;max-width:400px}
 .label-optional{font-size:.52rem;font-weight:400;letter-spacing:.08em;color:#282828;text-transform:none}
+
+/* DISCORD WARNING */
+.discord-warn{margin-top:9px;padding:10px 12px;background:#100a0a;border-left:2px solid #3a1a1a;font-size:.63rem;font-weight:400;line-height:1.65;color:#5a3030;max-width:400px}
 
 /* BTN */
 .btn-next{width:100%;background:var(--accent);color:#0a0a0a;border:none;padding:16px;font-weight:700;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;cursor:none;transition:opacity .2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -150,6 +170,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .back-link{display:inline-block;margin-top:28px;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#333;text-decoration:none;transition:color .2s;border-bottom:1px solid #222;padding-bottom:2px}
 .back-link:hover{color:var(--fg)}
 
+/* CHECKBOX */
+.check-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px;cursor:none}
+.check-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;cursor:none}
+.check-row label{font-size:.68rem;color:#404040;line-height:1.55;cursor:none}
+.check-row label a{color:#5a6a9a;border-bottom:1px solid #2a3a5a;text-decoration:none;transition:color .2s}
+.check-row label a:hover{color:var(--accent)}
+
 @media(max-width:900px){
   nav{padding:20px 24px}
   .page-wrap{grid-template-columns:1fr;padding-top:76px}
@@ -186,7 +213,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
     <div class="cart-label">Twój koszyk</div>
     <div class="cart-items" id="cartItems">
-      <div class="cart-empty" id="cartEmpty">Nie wybrano żadnego smaku.</div>
+      <div class="cart-empty" id="cartEmpty">Nie dodano żadnego smaku.</div>
     </div>
 
     <div class="cart-divider"></div>
@@ -208,57 +235,52 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <!-- RIGHT — slides -->
   <div class="form-side" id="formSide">
 
-    <!-- SUCCESS screen (outside slides) -->
+    <!-- SUCCESS screen -->
     <div class="success-wrap" id="successBlock" style="padding:60px">
       <div class="success-icon">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h3>Zamówienie przyjęte</h3>
-      <p>Otrzymaliśmy Twoje zamówienie.<br>Odezwiemy się w celu potwierdzenia i ustalenia szczegółów.</p>
+      <p>Otrzymaliśmy Twoje zamówienie.<br>Skontaktujemy się przez Discord w celu potwierdzenia i ustalenia szczegółów.</p>
       <a href="index.html" class="back-link">← Wróć na stronę</a>
     </div>
 
     <div id="slidesWrap" style="overflow:hidden">
       <div class="slides-track" id="slidesTrack">
 
-        <!-- SLIDE 1: koszyk + dane -->
+        <!-- SLIDE 1 -->
         <div class="slide" id="slide1">
           <div class="step-bar"><div class="step-pip done" id="pip1"></div><div class="step-pip" id="pip2"></div></div>
           <div class="form-eyebrow">Krok 1 z 2</div>
           <div class="form-title">Koszyk<br>i dane<span>.</span></div>
 
-          <div class="flavor-section-label">Dodaj smaki do koszyka</div>
-          <div class="flavors">
-            <button class="flavor-btn" data-flavor="Ice Peach Melon" data-price="99">
-              <div class="flavor-left">
-                <div class="flavor-dot"></div>
-                <div class="flavor-info">
-                  <span class="flavor-name">Ice Peach Melon</span>
-                  <span class="flavor-desc">Brzoskwinia · melon · chłód</span>
-                </div>
-              </div>
-              <span class="flavor-add">+ Dodaj</span>
-            </button>
-            <button class="flavor-btn" data-flavor="Fanta" data-price="99">
-              <div class="flavor-left">
-                <div class="flavor-dot"></div>
-                <div class="flavor-info">
-                  <span class="flavor-name">Fanta</span>
-                  <span class="flavor-desc">Pomarańcza · orzeźwienie</span>
-                </div>
-              </div>
-              <span class="flavor-add">+ Dodaj</span>
-            </button>
-            <button class="flavor-btn" data-flavor="Grape Ice" data-price="99">
-              <div class="flavor-left">
-                <div class="flavor-dot"></div>
-                <div class="flavor-info">
-                  <span class="flavor-name">Grape Ice</span>
-                  <span class="flavor-desc">Winogrono · lodowaty finisz</span>
-                </div>
-              </div>
-              <span class="flavor-add">+ Dodaj</span>
-            </button>
+          <!-- STOCK BANNER -->
+          <div class="stock-banner">
+            <div class="stock-banner-top">
+              <span class="stock-banner-icon">⚠</span>
+              <span class="stock-banner-title">Sprawdź aktualny stock przed zamówieniem</span>
+            </div>
+            <div class="stock-banner-body">
+              Smaki zmieniają się dynamicznie — nie prowadzimy stałej listy na stronie. Aktualne dostępności znajdziesz wyłącznie na naszym Discordzie. Zamówienie smaku, którego nie ma w stocku, może opóźnić lub uniemożliwić realizację.
+            </div>
+            <a href="https://discord.gg/nHKy3kwFMJ" target="_blank" rel="noopener" class="stock-banner-link">
+              Zobacz aktualny stock na Discordzie →
+            </a>
+          </div>
+
+          <!-- FLAVORS — manual input -->
+          <div class="flavor-section-label">Wpisz smaki (przepisz z listy na Discordzie)</div>
+          <div class="flavor-rows" id="flavorRows">
+            <!-- generowane przez JS -->
+          </div>
+          <button class="btn-add-flavor" id="btnAddFlavor">
+            <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+            Dodaj kolejny smak
+          </button>
+
+          <div class="flavor-confirm-box" id="flavorConfirmBox" style="display:none">
+            <strong>✓ Potwierdzenie</strong>
+            Zamawiasz smaki, które <strong>ręcznie przepisałeś/aś z aktualnej listy na Discordzie</strong>. Jeśli smak jest niedostępny w momencie realizacji, skontaktujemy się przez Discord przed wysyłką.
           </div>
 
           <div class="form-divider"></div>
@@ -274,17 +296,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <label class="field-label" for="inputEmail">Adres e-mail</label>
             <input class="field-input" id="inputEmail" type="email" placeholder="jan@gmail.com" autocomplete="off" spellcheck="false">
             <div class="field-err" id="errEmail">Wpisz poprawny adres e-mail.</div>
-            <p class="field-warning">⚠ Błędnie wpisany e-mail (np. literówka) uniemożliwia odbiór paczki z paczkomatu i ponowną wysyłkę. Sprawdź przed przejściem dalej.</p>
+            <p class="field-warning">⚠ Błędnie wpisany e-mail uniemożliwia odbiór paczki z paczkomatu. Sprawdź przed przejściem dalej.</p>
           </div>
 
           <div class="field-group">
-            <label class="field-label" for="inputTg">Nick Telegram <span class="label-optional">opcjonalne</span></label>
-            <input class="field-input" id="inputTg" type="text" placeholder="@twoj_nick" autocomplete="off" spellcheck="false">
+            <label class="field-label" for="inputDiscord">Nick Discord</label>
+            <input class="field-input" id="inputDiscord" type="text" placeholder="twojnick" autocomplete="off" spellcheck="false">
+            <div class="field-err" id="errDiscord">Wpisz swój nick Discord.</div>
+            <div class="discord-warn">
+              ⚠ Błędnie podany nick Discord uniemożliwia kontakt w sprawie zamówienia — potwierdzenia, aktualizacje statusu, problemy z dostawą. Sprawdź przed przejściem dalej.
+            </div>
+            <a href="https://discord.gg/nHKy3kwFMJ" target="_blank" rel="noopener" class="field-helper" style="margin-top:10px">Dołącz do serwera Discord →</a>
           </div>
 
           <div class="field-group">
             <label class="field-label" for="inputAff">Kod rabatowy <span class="label-optional">opcjonalne</span></label>
             <input class="field-input" id="inputAff" type="text" placeholder="np. BUBKA" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+          </div>
+
+          <div class="check-row" style="margin-bottom:16px">
+            <input type="checkbox" id="checkStock">
+            <label for="checkStock">Potwierdzam, że sprawdziłem/am aktualny stock na <a href="https://discord.gg/nHKy3kwFMJ" target="_blank" rel="noopener">Discordzie</a> i wpisane smaki są aktualnie dostępne.</label>
           </div>
 
           <button class="btn-next" id="btnToPayment" disabled>
@@ -343,10 +375,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div class="pay-panel" id="panelPsc">
             <div class="pay-box" style="text-align:center;padding:32px 24px">
               <div class="pay-box-label" style="margin-bottom:16px">PaySafeCard</div>
-              <p style="font-size:.82rem;color:#444;line-height:1.8;margin-bottom:24px">Napisz do nas na Telegram — podaj kod PSC i numer zamówienia, a my ręcznie potwierdzimy płatność i wyślemy paczkę.</p>
-              <a href="https://t.me/Samurai88770" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:14px 32px">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 13.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z"/></svg>
-                Napisz na Telegram
+              <p style="font-size:.82rem;color:#444;line-height:1.8;margin-bottom:24px">Napisz do nas na Discord — podaj kod PSC i numer zamówienia, a my ręcznie potwierdzimy płatność i wyślemy paczkę.</p>
+              <a href="https://discord.gg/nHKy3kwFMJ" target="_blank" rel="noopener" class="btn-next" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:14px 32px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.053a19.96 19.96 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+                Napisz na Discordzie
               </a>
             </div>
           </div>
@@ -355,7 +387,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
 
       </div>
-    </div><!-- slidesWrap -->
+    </div>
   </div>
 </div>
 
@@ -372,7 +404,7 @@ document.addEventListener('mousemove', e => {
 function onEnter(){ cursor.classList.add('big'); }
 function onLeave(){ cursor.classList.remove('big'); }
 function bindCursor(){
-  document.querySelectorAll('a,button').forEach(el => {
+  document.querySelectorAll('a,button,input,label').forEach(el => {
     el.removeEventListener('mouseenter', onEnter);
     el.removeEventListener('mouseleave', onLeave);
     el.addEventListener('mouseenter', onEnter);
@@ -381,123 +413,147 @@ function bindCursor(){
 }
 bindCursor();
 
-// ── CART ──
+// ── FLAVOR ROWS ──
 const PRICE    = 99;
 const DELIVERY = 12;
-const cart     = {};
 
-function cartTotal(){
-  return Object.values(cart).reduce((s, q) => s + q * PRICE, 0);
+// flavorList = [{name, qty}]
+let flavorList = [{ name: '', qty: 1 }];
+
+function renderFlavorRows(){
+  const container = document.getElementById('flavorRows');
+  container.innerHTML = '';
+
+  flavorList.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'flavor-row';
+    row.innerHTML = `
+      <span class="flavor-row-num">${idx + 1}.</span>
+      <input class="flavor-row-input" type="text" placeholder="Wpisz nazwę smaku…" value="${escHtml(item.name)}" data-idx="${idx}" autocomplete="off" spellcheck="false">
+      <div class="flavor-row-qty">
+        <button class="qty-btn" data-idx="${idx}" data-action="dec">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" data-idx="${idx}" data-action="inc">+</button>
+      </div>
+      ${flavorList.length > 1 ? `<button class="flavor-row-del" data-idx="${idx}" title="Usuń"><svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke-width="1.5"/><line x1="9" y1="1" x2="1" y2="9" stroke-width="1.5"/></svg></button>` : '<div style="width:24px;flex-shrink:0"></div>'}
+    `;
+    container.appendChild(row);
+  });
+
+  // event listeners
+  container.querySelectorAll('.flavor-row-input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      flavorList[+e.target.dataset.idx].name = e.target.value;
+      syncCart();
+      validateStep1();
+    });
+  });
+  container.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.idx;
+      if(btn.dataset.action === 'inc') flavorList[idx].qty++;
+      else { flavorList[idx].qty = Math.max(1, flavorList[idx].qty - 1); }
+      renderFlavorRows();
+      syncCart();
+      validateStep1();
+    });
+  });
+  container.querySelectorAll('.flavor-row-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      flavorList.splice(+btn.dataset.idx, 1);
+      renderFlavorRows();
+      syncCart();
+      validateStep1();
+    });
+  });
+
+  bindCursor();
+  syncCart();
 }
 
-function renderCart(){
+document.getElementById('btnAddFlavor').addEventListener('click', () => {
+  flavorList.push({ name: '', qty: 1 });
+  renderFlavorRows();
+  // focus new input
+  const rows = document.querySelectorAll('.flavor-row-input');
+  if(rows.length) rows[rows.length - 1].focus();
+  validateStep1();
+});
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── CART SYNC from flavorList ──
+function cartTotal(){
+  return flavorList.filter(f => f.name.trim()).reduce((s, f) => s + f.qty * PRICE, 0);
+}
+
+function syncCart(){
   const container = document.getElementById('cartItems');
   const empty     = document.getElementById('cartEmpty');
-  const keys      = Object.keys(cart).filter(k => cart[k] > 0);
+  const valid     = flavorList.filter(f => f.name.trim());
   const subtotal  = cartTotal();
-  const hasItems  = keys.length > 0;
+  const hasItems  = valid.length > 0;
   const total     = hasItems ? subtotal + DELIVERY : 0;
 
-  document.getElementById('subtotalVal').textContent      = subtotal + ' zł';
-  document.getElementById('deliveryVal').textContent      = hasItems ? DELIVERY + ' zł' : '— zł';
-  document.getElementById('deliveryVal').style.color      = hasItems ? '#666' : '#333';
-  document.getElementById('totalVal').textContent         = total;
+  document.getElementById('subtotalVal').textContent = subtotal + ' zł';
+  document.getElementById('deliveryVal').textContent = hasItems ? DELIVERY + ' zł' : '— zł';
+  document.getElementById('deliveryVal').style.color = hasItems ? '#666' : '#333';
+  document.getElementById('totalVal').textContent    = total;
 
-  if(keys.length === 0){
+  // show/hide confirm box
+  const confirmBox = document.getElementById('flavorConfirmBox');
+  confirmBox.style.display = hasItems ? 'block' : 'none';
+
+  if(!hasItems){
     empty.style.display = 'block';
-    container.querySelectorAll('.cart-item').forEach(el => el.remove());
-    validateStep1();
+    container.querySelectorAll('.cart-item').forEach(e => e.remove());
     return;
   }
   empty.style.display = 'none';
 
-  // usuń pozycje których nie ma już w koszyku
-  container.querySelectorAll('.cart-item').forEach(el => {
-    if(!cart[el.dataset.flavor] || cart[el.dataset.flavor] === 0) el.remove();
-  });
+  // remove stale
+  container.querySelectorAll('.cart-item').forEach(el => el.remove());
 
-  keys.forEach(flavor => {
-    let item = container.querySelector(`.cart-item[data-flavor="${CSS.escape(flavor)}"]`);
-    if(!item){
-      item = document.createElement('div');
-      item.className     = 'cart-item';
-      item.dataset.flavor = flavor;
-      item.innerHTML = `
-        <span class="cart-item-name">${flavor}</span>
-        <div class="cart-item-qty">
-          <button class="qty-btn" data-action="dec" data-flavor="${flavor}">−</button>
-          <span class="qty-num">${cart[flavor]}</span>
-          <button class="qty-btn" data-action="inc" data-flavor="${flavor}">+</button>
-        </div>
-        <span class="cart-item-price">${cart[flavor] * PRICE}zł</span>
-        <button class="cart-remove" data-flavor="${flavor}">
-          <svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke-width="1.5"/><line x1="9" y1="1" x2="1" y2="9" stroke-width="1.5"/></svg>
-        </button>
-      `;
-      container.appendChild(item);
-    } else {
-      item.querySelector('.qty-num').textContent         = cart[flavor];
-      item.querySelector('.cart-item-price').textContent = cart[flavor] * PRICE + 'zł';
-    }
+  valid.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'cart-item';
+    item.innerHTML = `
+      <span class="cart-item-name">${escHtml(f.name)}</span>
+      <span class="cart-item-price" style="margin-left:auto">${f.qty} × ${PRICE} zł</span>
+    `;
+    container.appendChild(item);
   });
-
-  // sync flavor btn stanu
-  document.querySelectorAll('.flavor-btn').forEach(btn => {
-    const f = btn.dataset.flavor;
-    btn.classList.toggle('selected', (cart[f] || 0) > 0);
-    btn.querySelector('.flavor-add').textContent = (cart[f] || 0) > 0 ? `✓ ${cart[f]}` : '+ Dodaj';
-  });
-
-  bindCursor();
-  validateStep1();
 }
 
-// zdarzenia koszyka (delegowane)
-document.getElementById('cartItems').addEventListener('click', e => {
-  const qb = e.target.closest('.qty-btn');
-  const rm = e.target.closest('.cart-remove');
-  if(qb){
-    const f = qb.dataset.flavor;
-    if(qb.dataset.action === 'inc') cart[f] = (cart[f] || 0) + 1;
-    else { cart[f] = (cart[f] || 1) - 1; if(cart[f] <= 0) delete cart[f]; }
-    renderCart();
-  }
-  if(rm){
-    delete cart[rm.dataset.flavor];
-    renderCart();
-  }
-});
-
-// przyciski dodawania smaków
-document.querySelectorAll('.flavor-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const f  = btn.dataset.flavor;
-    cart[f]  = (cart[f] || 0) + 1;
-    renderCart();
-  });
-});
+// init first row
+renderFlavorRows();
 
 // ── WALIDACJA KROKU 1 ──
 const inputLocker  = document.getElementById('inputLocker');
 const inputEmail   = document.getElementById('inputEmail');
+const inputDiscord = document.getElementById('inputDiscord');
+const checkStock   = document.getElementById('checkStock');
 const btnToPayment = document.getElementById('btnToPayment');
 
 function validateStep1(){
-  const hasCart   = Object.keys(cart).filter(k => cart[k] > 0).length > 0;
-  const hasLocker = inputLocker.value.trim().length > 0;
-  const hasEmail  = inputEmail.value.trim().length > 0;
-  btnToPayment.disabled = !(hasCart && hasLocker && hasEmail);
+  const hasFlavors  = flavorList.some(f => f.name.trim().length > 0);
+  const hasLocker   = inputLocker.value.trim().length > 0;
+  const hasEmail    = inputEmail.value.trim().length > 0;
+  const hasDiscord  = inputDiscord.value.trim().length > 0;
+  const hasChecked  = checkStock.checked;
+  btnToPayment.disabled = !(hasFlavors && hasLocker && hasEmail && hasDiscord && hasChecked);
 }
 
 inputLocker.addEventListener('input', validateStep1);
 inputEmail.addEventListener('input', validateStep1);
+inputDiscord.addEventListener('input', validateStep1);
+checkStock.addEventListener('change', validateStep1);
 
-// ── BŁĘDY INLINE przy kliknięciu "Dalej" ──
+// ── CLICK "Dalej" ──
 btnToPayment.addEventListener('click', () => {
   let ok = true;
 
-  const locker = inputLocker.value.trim();
-  if(!locker){
+  if(!inputLocker.value.trim()){
     inputLocker.classList.add('err');
     document.getElementById('errLocker').classList.add('show');
     ok = false;
@@ -517,25 +573,28 @@ btnToPayment.addEventListener('click', () => {
     document.getElementById('errEmail').classList.remove('show');
   }
 
+  if(!inputDiscord.value.trim()){
+    inputDiscord.classList.add('err');
+    document.getElementById('errDiscord').classList.add('show');
+    ok = false;
+  } else {
+    inputDiscord.classList.remove('err');
+    document.getElementById('errDiscord').classList.remove('show');
+  }
+
   if(!ok) return;
   goToSlide2();
 });
 
-inputLocker.addEventListener('input', () => {
-  inputLocker.classList.remove('err');
-  document.getElementById('errLocker').classList.remove('show');
-});
-inputEmail.addEventListener('input', () => {
-  inputEmail.classList.remove('err');
-  document.getElementById('errEmail').classList.remove('show');
-});
+inputLocker.addEventListener('input', () => { inputLocker.classList.remove('err'); document.getElementById('errLocker').classList.remove('show'); });
+inputEmail.addEventListener('input',  () => { inputEmail.classList.remove('err');  document.getElementById('errEmail').classList.remove('show'); });
+inputDiscord.addEventListener('input',() => { inputDiscord.classList.remove('err'); document.getElementById('errDiscord').classList.remove('show'); });
 
-// ── NAWIGACJA MIĘDZY SLAJDAMI ──
+// ── NAWIGACJA ──
 let currentPaymentId = null;
 let pollInterval     = null;
 
 async function goToSlide2(){
-  // FIX: usunięto odwołanie do nieistniejącego #pscAmount
   document.getElementById('slidesTrack').style.transform = 'translateX(-50%)';
   document.getElementById('pip2').classList.add('done');
   updatePaySubtitle('ltc');
@@ -548,7 +607,6 @@ document.getElementById('btnBack').addEventListener('click', () => {
   stopPolling();
 });
 
-// ── ZAKŁADKI PŁATNOŚCI ──
 document.querySelectorAll('.pay-method').forEach(btn => {
   btn.addEventListener('click', async () => {
     document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
@@ -566,11 +624,11 @@ function updatePaySubtitle(method){
   if(method === 'ltc'){
     el.textContent = 'Wyślij LTC na poniższy adres. Zamówienie zostanie przyjęte automatycznie po wykryciu wpłaty.';
   } else {
-    el.textContent = 'Napisz na Telegram z kodem PSC — potwierdzimy ręcznie.';
+    el.textContent = 'Napisz na Discord z kodem PSC — potwierdzimy ręcznie.';
   }
 }
 
-// ── TWORZENIE PŁATNOŚCI LTC ──
+// ── LTC ──
 async function createLtcPayment(){
   document.getElementById('ltcLoading').style.display = 'block';
   document.getElementById('ltcDetails').style.display = 'none';
@@ -589,15 +647,12 @@ async function createLtcPayment(){
     if(!r.ok || data.error) throw new Error(data.detail?.message || data.error || 'API error');
 
     currentPaymentId = data.paymentId;
-
     document.getElementById('ltcAddr').textContent       = data.payAddress;
     document.getElementById('ltcPayAmount').textContent  = data.payAmount + ' LTC';
     document.getElementById('ltcAmountNote').textContent = data.payAmount;
     document.getElementById('ltcLoading').style.display  = 'none';
     document.getElementById('ltcDetails').style.display  = 'block';
-
     startPolling(data.paymentId);
-
   } catch(err) {
     console.error('createLtcPayment error:', err);
     document.getElementById('ltcLoading').style.display = 'none';
@@ -605,43 +660,32 @@ async function createLtcPayment(){
   }
 }
 
-// ── KOPIOWANIE ADRESU LTC ──
 document.getElementById('ltcAddr').addEventListener('click', () => {
   const addr = document.getElementById('ltcAddr').textContent;
   if(!addr || addr === '—') return;
   navigator.clipboard.writeText(addr).then(() => {
-    const el   = document.getElementById('ltcAddr');
+    const el = document.getElementById('ltcAddr');
     const orig = el.textContent;
     el.textContent = 'Skopiowano ✓';
     setTimeout(() => { el.textContent = orig; }, 2000);
   });
 });
 
-// ── POLLING STATUSU — co 6 sekund ──
-function startPolling(paymentId){
-  stopPolling();
-  pollInterval = setInterval(() => checkStatus(paymentId), 6000);
-}
-
-function stopPolling(){
-  if(pollInterval){ clearInterval(pollInterval); pollInterval = null; }
-}
+function startPolling(paymentId){ stopPolling(); pollInterval = setInterval(() => checkStatus(paymentId), 6000); }
+function stopPolling(){ if(pollInterval){ clearInterval(pollInterval); pollInterval = null; } }
 
 async function checkStatus(paymentId){
   try {
     const r    = await fetch(`/api/payment-status?id=${paymentId}`);
     const data = await r.json();
     updateStatusUI(data.status);
-    if(['finished', 'confirmed'].includes(data.status)){
+    if(['finished','confirmed'].includes(data.status)){
       stopPolling();
-      // FIX: sendOrderToTelegram wywołujemy BEZ próby czytania pscCode
       await sendOrderToTelegram('ltc');
       onPaymentSuccess();
     }
-    if(['failed', 'expired'].includes(data.status)) stopPolling();
-  } catch(err) {
-    console.error('checkStatus error:', err);
-  }
+    if(['failed','expired'].includes(data.status)) stopPolling();
+  } catch(err){ console.error('checkStatus error:', err); }
 }
 
 function updateStatusUI(status){
@@ -663,16 +707,11 @@ function updateStatusUI(status){
   text.style.color     = s.color === '#333' ? '#444' : s.color;
 }
 
-// ── WYSYŁANIE ZAMÓWIENIA DO TELEGRAMA ──
 async function sendOrderToTelegram(payMethod){
-  const flavors = Object.entries(cart)
-    .filter(([, q]) => q > 0)
-    .map(([f, q]) => `${f} x${q}`)
+  const flavors = flavorList
+    .filter(f => f.name.trim())
+    .map(f => `${f.name.trim()} x${f.qty}`)
     .join(', ');
-
-  // FIX: pscCode tylko jeśli element istnieje — PSC używa Telegrama, więc zawsze '—'
-  const pscCodeEl = document.getElementById('pscCode');
-  const pscCode   = (payMethod === 'psc' && pscCodeEl) ? pscCodeEl.value.trim() : '—';
 
   try {
     await fetch('/api/order', {
@@ -686,16 +725,13 @@ async function sendOrderToTelegram(payMethod){
         total:        (cartTotal() + DELIVERY) + ' zł',
         locker:       inputLocker.value.trim().toUpperCase(),
         email:        inputEmail.value.trim(),
-        telegram:     document.getElementById('inputTg').value.trim() || '—',
+        discord:      inputDiscord.value.trim(),
         affCode:      document.getElementById('inputAff').value.trim().toUpperCase() || '',
         payMethod,
-        pscCode,
         ltcPaymentId: currentPaymentId || '—'
       })
     });
-  } catch(err) {
-    console.error('sendOrderToTelegram error:', err);
-  }
+  } catch(err){ console.error('sendOrderToTelegram error:', err); }
 }
 
 function onPaymentSuccess(){
